@@ -92,7 +92,6 @@ class RuntimeAnalyzer:
 
         pyplot.xlabel("Input Size")
 
-
         pyplot.show()
 
     @staticmethod
@@ -127,8 +126,6 @@ class RuntimeAnalyzer:
 
     def _size_and_dimension_to_magnitude(self, sizes, dims):
         return [np.log2(np.mean(self.runtime_points[s])/np.power(s, d)) for s, d in zip(sizes, dims)]
-
-
 
 def ex_0():
     def lin_func(n):
