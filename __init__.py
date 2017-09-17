@@ -56,59 +56,54 @@ class RuntimeAnalyzer:
         T(s) is taken as the average runtime of those.
         """
         if(dimension == None):
-            sizes, mags, dims = self.size_to_dimension_and_magnitude()
-
-            pyplot.subplot(311)
-            pyplot.loglog(sizes, [np.mean(self.runtime_points[s]) for s in sizes], 'b.-', basex=10, basey=2)
-            if(xlim != None):
-                pyplot.xlim(xlim)
-            pyplot.ylabel("Runtime")
-            if(ylim != None):
-                pyplot.ylim(ylim)
-
-            pyplot.subplot(312)
-            pyplot.semilogx(sizes, dims, 'r.-', basex=10)
-            if(xlim != None):
-                pyplot.xlim(xlim)
-            pyplot.ylabel("Dimension")
-            if(ylim != None):
-                pyplot.ylim(ylim)
-
-            pyplot.subplot(313)
-            pyplot.semilogx(sizes, mags, 'g.-', basex=10)
-            pyplot.xlabel("Input Size")
-            if(xlim != None):
-                pyplot.xlim(xlim)
-            pyplot.ylabel("Magnitude")
-            if(ylim != None):
-                pyplot.ylim(ylim)
-
-            pyplot.show()
+            self._plot_without_fixed_dimension(xlim, ylim)
         else:
-            sizes = sorted([k for k in self.runtime_points.keys()])
+            self._plot_with_fixed_dimension(dimension, xlim, ylim)
 
-            pyplot.subplot(211)
-            pyplot.loglog(sizes, [np.mean(self.runtime_points[s]) for s in sizes], 'b.-', basex=10, basey=2)
-            if(xlim != None):
-                pyplot.xlim(xlim)
-            pyplot.ylabel("Runtime")
-            if(ylim != None):
-                pyplot.ylim(ylim)
+    def _plot_without_fixed_dimension(self, xlim = None, ylim = None):
+        sizes, mags, dims = self.size_to_dimension_and_magnitude()
 
-            pyplot.subplot(212)
-            dims = [dimension for s in sizes]
-            mags = self._size_and_dimension_to_magnitude(sizes, dims)
-            pyplot.semilogx(sizes, mags, 'g.-', basex=10)
-            pyplot.xlabel("Input Size")
-            if(xlim != None):
-                pyplot.xlim(xlim)
-            pyplot.ylabel("Magnitude\n(Dimension: "+ str(dimension)+")")
-            if(ylim != None):
-                pyplot.ylim(ylim)
+        self._plot_panel(311, "Runtime", xlim, ylim, pyplot.loglog,\
+            sizes, [np.mean(self.runtime_points[s]) for s in sizes],\
+            'b.-', basex=10, basey=2)
+
+        self._plot_panel(312, "Dimension", xlim, ylim,\
+            pyplot.semilogx, sizes, dims, 'r.-', basex=10)
+
+        self._plot_panel(313, "Magnitude", xlim, ylim,\
+            pyplot.semilogx, sizes, mags, 'g.-', basex=10)
+
+        pyplot.xlabel("Input Size")
+
+        pyplot.show()
+
+    def _plot_with_fixed_dimension(self, dimension, xlim=None, ylim=None):
+        sizes = sorted([k for k in self.runtime_points.keys()])
+
+        self._plot_panel(211, "Runtime", xlim, ylim, pyplot.loglog,\
+            sizes, [np.mean(self.runtime_points[s]) for s in sizes],\
+            'b.-', basex=10, basey=2)
+
+        dims = [dimension for s in sizes]
+        mags = self._size_and_dimension_to_magnitude(sizes, dims)
+
+        self._plot_panel(212, "Magnitude\n(Dimension: "+ str(dimension)+")",\
+            xlim, ylim, pyplot.semilogx, sizes, mags, 'g.-', basex=10)
+
+        pyplot.xlabel("Input Size")
 
 
-            pyplot.show()
+        pyplot.show()
 
+    @staticmethod
+    def _plot_panel(subplotCode, ylabel, xlim, ylim, plot_method, *args, **kwargs):
+        pyplot.subplot(subplotCode)
+        plot_method(*args, **kwargs)
+        if(xlim != None):
+            pyplot.xlim(xlim)
+        pyplot.ylabel(ylabel)
+        if(ylim != None):
+            pyplot.ylim(ylim)
 
     def size_to_dimension_and_magnitude(self):
         """
@@ -149,7 +144,7 @@ def ex_0():
     for i in range(1, 25):
         rt(2**i)
 
-    rt.plot()
+    rt.plot(dimension = 1)
 
 def ex_1():
     def test_func(n):
